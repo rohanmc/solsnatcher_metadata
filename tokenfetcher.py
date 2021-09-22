@@ -4,6 +4,8 @@ import base64
 import base58
 import struct
 
+from optparse import OptionParser
+
 payload = {
     "method": "getProgramAccounts",
     "jsonrpc": "2.0",
@@ -15,7 +17,7 @@ payload = {
                 {
                     "memcmp": {
                         "offset": 326,
-                        "bytes": "DVemJ8n9ZiSmSf8a18VYgpBgTUoHEA8x6ZZBsTL2bxk9",
+                        "bytes": "",
                     }
                 }
             ],
@@ -82,6 +84,16 @@ def unpack_metadata_account(data):
     return metadata
 
 if __name__ == "__main__":
+
+    parser = OptionParser()
+    creator_address = "DVemJ8n9ZiSmSf8a18VYgpBgTUoHEA8x6ZZBsTL2bxk9"
+    parser.add_option("-c", "--c", dest="creator_address",
+                  help="candy machine creator address")
+
+    (options, args) = parser.parse_args()
+    if options.creator_address:
+        creator_address = options.creator_address
+    payload["params"][1]["filters"][0]["memcmp"]["bytes"] = creator_address
     resp = json.loads(requests.post("https://api.mainnet-beta.solana.com/", json = payload).text)
 
     for r in resp["result"]:
